@@ -39,6 +39,7 @@ fun MyDrawerMenu() {
     var selectedItemIndex by remember { mutableStateOf(0) }
 
     ModalNavigationDrawer(
+        gesturesEnabled = false,
         drawerContent = {
             ModalDrawerSheet {
                 DrawerItem.entries.forEachIndexed { index, drawerItem ->
