@@ -1,7 +1,10 @@
 package com.example.mapsapp.viewmodels
 
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.mapsapp.MyApp
 import com.example.mapsapp.data.Marker
 import com.google.android.gms.maps.model.LatLng
@@ -12,57 +15,69 @@ import kotlinx.coroutines.withContext
 
 class MyViewModel : ViewModel() {
     val database = MyApp.database
+
+    private val _markers = mutableStateListOf<Marker>()
+    val markers: List<Marker> = _markers
     private val _markerName = MutableLiveData<String>()
     val markerName = _markerName
     private val _markerMark = MutableLiveData<String>()
     val markerMark = _markerMark
     private val _markersList = MutableLiveData<List<Marker>>()
     val markersList = _markersList
-    private var _selectedMarker: Marker? = null
+
+    private val _selectedMarker = mutableStateOf<Marker?>(null)
+
+    private val _currentPosition = mutableStateOf<LatLng?>(null)
+    val currentPosition: LatLng? = _currentPosition.value
 
 
-    fun insertNewMarker(id: Int, name: String, latitude: Double, longitude: Double) {
-        val newMarker = Marker(id, name, latitude, longitude)
-        CoroutineScope(Dispatchers.IO).launch {
-            database.insertMarker(newMarker)
-            getAllMarkers()
+    init {
+        loadMarkers()
+    }
+
+    fun loadMarkers() {
+        viewModelScope.launch {
+            _markers.clear()
+            _markers.addAll(MyApp.database.getAllMarkers())
         }
     }
 
-    fun getAllMarkers() {
-        CoroutineScope(Dispatchers.IO).launch {
-            val databaseStudents = database.getAllMarkers()
-            withContext(Dispatchers.Main) {
-                _markersList.value = databaseStudents
+    fun setCurrentPosition(latLng: LatLng) {
+        _currentPosition.value = latLng
+    }
+
+    fun selectMarker(marker: Marker) {
+        _selectedMarker.value = marker
+    }
+
+    fun addMarker(title: String, description: String, imageUri: String?) {
+        viewModelScope.launch {
+            currentPosition?.let { latLng ->
+                val marker = Marker(
+                    title = title,
+                    description = description,
+                    latitude = latLng.latitude,
+                    longitude = latLng.longitude,
+                    imageUrl = imageUri
+                )
+                MyApp.database.insertMarker(marker)
+                loadMarkers()
             }
         }
     }
 
-    fun updateStudent(id: String, name: String, mark: String) {
-        CoroutineScope(Dispatchers.IO).launch {
-            database.updateMarker(id, name, mark.toDouble())
+    fun updateMarker(id: String, title: String, description: String) {
+        viewModelScope.launch {
+            MyApp.database.updateMarker(id, title, description)
+            loadMarkers()
         }
     }
 
-    fun getStudent(id: String) {
-        if (_selectedMarker == null) {
-            CoroutineScope(Dispatchers.IO).launch {
-                val marker = database.getMarker(id)
-                withContext(Dispatchers.Main) {
-                    _selectedMarker = marker
-                    _markerName.value = marker.name
-                    _markerMark.value = marker.mark.toString()
-                }
-            }
+    fun deleteMarker(id: String) {
+        viewModelScope.launch {
+            MyApp.database.deleteMarker(id)
+            loadMarkers()
         }
     }
-
-    fun deleteStudent(id: String) {
-        CoroutineScope(Dispatchers.IO).launch {
-            database.deleteMarker(id)
-            getAllMarkers()
-        }
-    }
-
 
 }

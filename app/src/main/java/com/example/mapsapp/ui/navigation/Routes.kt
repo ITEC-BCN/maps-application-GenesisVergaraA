@@ -5,6 +5,7 @@ import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
 
 sealed class Destination {
+
     @Serializable
     object Map : Destination()
 

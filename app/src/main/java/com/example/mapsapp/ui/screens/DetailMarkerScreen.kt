@@ -15,26 +15,82 @@ import com.example.mapsapp.viewmodels.MyViewModel
 
 @Composable
 fun DetailMarkerScreen(
-    id: String,
-    navigateBack: () -> Unit,
+    markerId: String,
+    onBack: () -> Unit,
+    onMarkerUpdated: () -> Unit
 ) {
-    val myViewModel = viewModel<MyViewModel>()
-    myViewModel.getStudent(id)
-    val studentName: String by myViewModel..observeAsState("")
-    val studentMark: String by myViewModel.studentMark.observeAsState("")
-    Column(
-        Modifier.fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        TextField(value = studentName, onValueChange = { myViewModel.editStudentName(it) })
-        TextField(value = studentMark, onValueChange = { myViewModel.editStudentMark(it) })
-        Button(onClick = {
-            myViewModel.updateStudent(studentId, studentName, studentMark)
-            navigateBack()
-        }) {
-            Text("Update")
+    val marker = remember { mutableStateOf<Marker?>(null) }
+    val scope = rememberCoroutineScope()
+
+    val title = remember { mutableStateOf("") }
+    val description = remember { mutableStateOf("") }
+
+    LaunchedEffect(markerId) {
+        scope.launch {
+            marker.value = MyApp.database.getMarker(markerId)
+            title.value = marker.value?.title ?: ""
+            description.value = marker.value?.description ?: ""
         }
     }
 
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        TopAppBar(
+            title = { Text("Editar Marcador") },
+            navigationIcon = {
+                IconButton(onClick = onBack) {
+                    Icon(Icons.Default.ArrowBack, contentDescription = "Atrás")
+                }
+            }
+        )
+
+        TextField(
+            value = title.value,
+            onValueChange = { title.value = it },
+            label = { Text("Título") },
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        TextField(
+            value = description.value,
+            onValueChange = { description.value = it },
+            label = { Text("Descripción") },
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        marker.value?.imageUrl?.let { url ->
+            AsyncImage(
+                model = url,
+                contentDescription = null,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(200.dp)
+                    .clip(RoundedCornerShape(8.dp)),
+                contentScale = ContentScale.Crop
+            )
+        }
+
+        Spacer(modifier = Modifier.weight(1f))
+
+        Button(
+            onClick = {
+                scope.launch {
+                    MyApp.database.updateMarker(
+                        id = markerId,
+                        title = title.value,
+                        description = description.value
+                    )
+                    onMarkerUpdated()
+                }
+            },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("Guardar Cambios")
+        }
+    }
 }
+

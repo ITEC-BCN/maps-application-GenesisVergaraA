@@ -15,20 +15,44 @@ import com.example.mapsapp.ui.screens.MarkerListScreen
 fun InternalNavigationWrapper(navController: NavHostController) {
     NavHost(navController, Destination.Map) {
         composable<Destination.Map> {
-            MapScreen()
+            MapScreen(
+                onCreateMarker = { latLng ->
+                    navController.navigate(Destination.CreateMarker(latLng))
+                },
+                onShowList = {
+                    navController.navigate(Destination.MarkerList)
+                },
+                onMarkerClick = { markerId ->
+                    navController.navigate(Destination.DetailMarker(markerId))
+                }
+            )
         }
-        composable<MarkerList> {
-            MarkerListScreen()
-        }
-        composable<Destination.DetailMarker> { backStackEntry ->
-            val detallScreen = backStackEntry.toRoute<Destination.DetailMarker>()
-            DetailMarkerScreen(detallScreen.id) { navController.popBackStack() }
-        }
+
         composable<Destination.CreateMarker> { backStackEntry ->
-            val createScreen = backStackEntry.toRoute<Destination.CreateMarker>()
-            CreateMarkerScreen(createScreen.coordenadas) {
-                navController.popBackStack()
-            }
+            val destination = backStackEntry.toRoute<Destination.CreateMarker>()
+            CreateMarkerScreen(
+                coordinates = destination.coordenadas,
+                onBack = { navController.popBackStack() },
+                onMarkerCreated = { navController.popBackStack() }
+            )
+        }
+
+        composable<Destination.MarkerList> {
+            MarkerListScreen(
+                onBack = { navController.popBackStack() },
+                onMarkerClick = { markerId ->
+                    navController.navigate(Destination.DetailMarker(markerId))
+                }
+            )
+        }
+
+        composable<Destination.DetailMarker> { backStackEntry ->
+            val destination = backStackEntry.toRoute<Destination.DetailMarker>()
+            DetailMarkerScreen(
+                markerId = destination.id,
+                onBack = { navController.popBackStack() },
+                onMarkerUpdated = { navController.popBackStack() }
+            )
         }
     }
 }
