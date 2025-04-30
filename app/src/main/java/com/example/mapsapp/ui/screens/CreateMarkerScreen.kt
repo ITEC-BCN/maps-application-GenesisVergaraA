@@ -33,9 +33,12 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.core.content.FileProvider
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.mapsapp.MyApp
 import com.example.mapsapp.data.Marker
+import com.example.mapsapp.viewmodels.MyViewModel
 import com.google.android.gms.maps.model.LatLng
+import kotlinx.coroutines.launch
 import java.io.File
 
 @Composable
@@ -44,6 +47,8 @@ fun CreateMarkerScreen(
     onBack: () -> Unit,
     onMarkerCreated: () -> Unit
 ) {
+    val myViewModel = viewModel<MyViewModel>()
+
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
 
@@ -83,7 +88,7 @@ fun CreateMarkerScreen(
             onClick = {
                 val uri = createImageUri(context)
                 imageUri.value = uri
-                cameraLauncher.launch(uri)
+                cameraLauncher.launch(uri!!)
             }
         ) {
             Text("Tomar foto")
@@ -116,28 +121,15 @@ fun CreateMarkerScreen(
 
             Button(
                 onClick = {
-                    scope.launch {
-                        val imageUrl = imageUri.value?.let { uri ->
-                            context.contentResolver.openInputStream(uri)?.use { stream ->
-                                MyApp.database.uploadImage(
-                                    "marker_${System.currentTimeMillis()}.jpg",
-                                    stream
-                                )
-                            }
-                        }
-
-                        MyApp.database.insertMarker(
-                            Marker(
+                        myViewModel.addMarker(
                                 title = title.value,
                                 description = description.value,
-                                latitude = coordinates.latitude,
-                                longitude = coordinates.longitude,
-                                imageUrl = imageUrl
-                            )
+                                imageUri = imageUri.toString()
+
                         )
                         onMarkerCreated()
                     }
-                },
+                ,
                 enabled = title.value.isNotEmpty(),
                 modifier = Modifier.weight(1f)
             ) {
@@ -145,4 +137,16 @@ fun CreateMarkerScreen(
             }
         }
     }
+}
+
+fun createImageUri(context: Context): Uri? {
+    val file = File.createTempFile("temp_image_", ".jpg", context.cacheDir).apply {
+        createNewFile()
+        deleteOnExit()
+    }
+    return FileProvider.getUriForFile(
+        context,
+        "${context.packageName}.fileprovider",
+        file
+    )
 }

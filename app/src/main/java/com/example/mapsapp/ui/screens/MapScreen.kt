@@ -57,12 +57,5 @@ fun MapScreen(
                 )
             }
         }
-
-        Button(
-            onClick = onShowList,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text("Ver lista de marcadores")
-        }
     }
 }

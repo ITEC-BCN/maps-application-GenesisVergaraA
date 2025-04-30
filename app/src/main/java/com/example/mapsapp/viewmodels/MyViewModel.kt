@@ -51,7 +51,7 @@ class MyViewModel : ViewModel() {
     }
 
     fun addMarker(title: String, description: String, imageUri: String?) {
-        viewModelScope.launch {
+        CoroutineScope(Dispatchers.IO).launch {
             currentPosition?.let { latLng ->
                 val marker = Marker(
                     title = title,
@@ -60,22 +60,22 @@ class MyViewModel : ViewModel() {
                     longitude = latLng.longitude,
                     imageUrl = imageUri
                 )
-                MyApp.database.insertMarker(marker)
+                database.insertMarker(marker)
                 loadMarkers()
             }
         }
     }
 
     fun updateMarker(id: String, title: String, description: String) {
-        viewModelScope.launch {
-            MyApp.database.updateMarker(id, title, description)
+        CoroutineScope(Dispatchers.IO).launch {
+            database.updateMarker(id, title, description)
             loadMarkers()
         }
     }
 
     fun deleteMarker(id: String) {
-        viewModelScope.launch {
-            MyApp.database.deleteMarker(id)
+        CoroutineScope(Dispatchers.IO).launch {
+           database.deleteMarker(id)
             loadMarkers()
         }
     }
