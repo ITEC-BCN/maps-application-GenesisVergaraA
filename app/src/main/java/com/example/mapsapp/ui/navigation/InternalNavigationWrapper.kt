@@ -5,11 +5,11 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
-import com.example.mapsapp.ui.navigation.Destination.MarkerList
 import com.example.mapsapp.ui.screens.CreateMarkerScreen
 import com.example.mapsapp.ui.screens.DetailMarkerScreen
 import com.example.mapsapp.ui.screens.MapScreen
 import com.example.mapsapp.ui.screens.MarkerListScreen
+import com.google.android.gms.maps.model.LatLng
 
 @Composable
 fun InternalNavigationWrapper(navController: NavHostController) {
@@ -17,7 +17,7 @@ fun InternalNavigationWrapper(navController: NavHostController) {
         composable<Destination.Map> {
             MapScreen(
                 onCreateMarker = { latLng ->
-                    navController.navigate(Destination.CreateMarker(latLng))
+                    navController.navigate(Destination.CreateMarker(latLng.latitude, latLng.longitude))
                 },
                 onShowList = {
                     navController.navigate(Destination.MarkerList)
@@ -29,9 +29,11 @@ fun InternalNavigationWrapper(navController: NavHostController) {
         }
 
         composable<Destination.CreateMarker> { backStackEntry ->
-            val destination = backStackEntry.toRoute<Destination.CreateMarker>()
+            val lat = backStackEntry.toRoute<Destination.CreateMarker>().latitude
+            val lng = backStackEntry.toRoute<Destination.CreateMarker>().longitude
+            val coordenadas = LatLng(lat, lng)
             CreateMarkerScreen(
-                coordinates = destination.coordenadas,
+                coordenadas = coordenadas,
                 onBack = { navController.popBackStack() },
                 onMarkerCreated = { navController.popBackStack() }
             )

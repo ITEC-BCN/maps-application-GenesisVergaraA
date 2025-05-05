@@ -9,5 +9,5 @@ data class Marker(
     val description: String,
     val latitude: Double,
     val longitude: Double,
-    val imageUrl: String? = null
+    val image: String? = null
 )

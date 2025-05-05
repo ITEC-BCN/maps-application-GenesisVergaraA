@@ -14,8 +14,8 @@ sealed class Destination {
 
     @Serializable
     data class CreateMarker(
-        @Contextual
-        val coordenadas: LatLng
+        val latitude: Double,
+        val longitude: Double
     ) : Destination()
 
     @Serializable

@@ -50,6 +50,7 @@ fun DetailMarkerScreen(
     onBack: () -> Unit,
     onMarkerUpdated: () -> Unit
 ) {
+
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val imageUri = remember { mutableStateOf<Uri?>(null) }

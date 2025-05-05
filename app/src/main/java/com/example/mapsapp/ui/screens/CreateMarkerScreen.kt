@@ -1,6 +1,5 @@
 package com.example.mapsapp.ui.screens
 
-import android.R.attr.bitmap
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -43,14 +42,13 @@ import java.io.File
 
 @Composable
 fun CreateMarkerScreen(
-    coordinates: LatLng,
+    coordenadas: LatLng,
     onBack: () -> Unit,
     onMarkerCreated: () -> Unit
 ) {
     val myViewModel = viewModel<MyViewModel>()
 
     val context = LocalContext.current
-    val scope = rememberCoroutineScope()
 
     val title = remember { mutableStateOf("") }
     val description = remember { mutableStateOf("") }

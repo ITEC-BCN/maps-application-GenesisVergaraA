@@ -36,7 +36,7 @@ class MyViewModel : ViewModel() {
     }
 
     fun loadMarkers() {
-        viewModelScope.launch {
+        CoroutineScope(Dispatchers.IO).launch {
             _markers.clear()
             _markers.addAll(MyApp.database.getAllMarkers())
         }
@@ -50,7 +50,7 @@ class MyViewModel : ViewModel() {
         _selectedMarker.value = marker
     }
 
-    fun addMarker(title: String, description: String, imageUri: String?) {
+    fun addMarker(title: String, description: String, imageUri: String) {
         CoroutineScope(Dispatchers.IO).launch {
             currentPosition?.let { latLng ->
                 val marker = Marker(
@@ -58,7 +58,7 @@ class MyViewModel : ViewModel() {
                     description = description,
                     latitude = latLng.latitude,
                     longitude = latLng.longitude,
-                    imageUrl = imageUri
+                    image = imageUri
                 )
                 database.insertMarker(marker)
                 loadMarkers()
