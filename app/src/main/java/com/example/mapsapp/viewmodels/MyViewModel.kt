@@ -1,31 +1,29 @@
 package com.example.mapsapp.viewmodels
 
+import android.graphics.Bitmap
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import com.example.mapsapp.MyApp
 import com.example.mapsapp.data.Marker
 import com.google.android.gms.maps.model.LatLng
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import java.io.ByteArrayOutputStream
 
 class MyViewModel : ViewModel() {
     val database = MyApp.database
 
-    private val _markers = mutableStateListOf<Marker>()
-    val markers: List<Marker> = _markers
-    private val _markerName = MutableLiveData<String>()
-    val markerName = _markerName
+    private val _markers = mutableStateOf<List<Marker>>(emptyList())
     private val _markerMark = MutableLiveData<String>()
     val markerMark = _markerMark
     private val _markersList = MutableLiveData<List<Marker>>()
     val markersList = _markersList
 
     private val _selectedMarker = mutableStateOf<Marker?>(null)
+    val selectedMarker = _selectedMarker.value
 
     private val _currentPosition = mutableStateOf<LatLng?>(null)
     val currentPosition: LatLng? = _currentPosition.value
@@ -50,15 +48,21 @@ class MyViewModel : ViewModel() {
         _selectedMarker.value = marker
     }
 
-    fun addMarker(title: String, description: String, imageUri: String) {
+    fun addMarker(title: String, description: String, image: Bitmap?) {
         CoroutineScope(Dispatchers.IO).launch {
+            val imageUrl = image?.let { bitmap ->
+                val stream = ByteArrayOutputStream()
+                bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream)
+                database.uploadImage(stream.toByteArray())
+            }
+
             currentPosition?.let { latLng ->
                 val marker = Marker(
                     title = title,
                     description = description,
                     latitude = latLng.latitude,
                     longitude = latLng.longitude,
-                    image = imageUri
+                    image = imageUrl
                 )
                 database.insertMarker(marker)
                 loadMarkers()
@@ -66,16 +70,28 @@ class MyViewModel : ViewModel() {
         }
     }
 
-    fun updateMarker(id: String, title: String, description: String) {
+    fun updateMarker(id: String, title: String, description: String, image: Bitmap?) {
         CoroutineScope(Dispatchers.IO).launch {
-            database.updateMarker(id, title, description)
+            val currentImageUrl = selectedMarker?.image
+            val newImageUrl = image?.let { bitmap ->
+                val stream = ByteArrayOutputStream()
+                bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream)
+                database.uploadImage(stream.toByteArray())
+            } ?: currentImageUrl
+
+            if (newImageUrl != currentImageUrl && currentImageUrl != null) {
+                database.deleteImage(currentImageUrl)
+            }
+
+            database.updateMarker(id, title, description, newImageUrl)
             loadMarkers()
         }
     }
 
-    fun deleteMarker(id: String) {
+    fun deleteMarker(id: String, image: String) {
         CoroutineScope(Dispatchers.IO).launch {
-           database.deleteMarker(id)
+            database.deleteImage(image)
+            database.deleteMarker(id)
             loadMarkers()
         }
     }

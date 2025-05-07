@@ -1,9 +1,7 @@
 package com.example.mapsapp.data
 
-import android.os.Build
-import androidx.annotation.RequiresApi
-import com.example.mapsapp.BuildConfig
 import io.github.jan.supabase.SupabaseClient
+import com.example.mapsapp.BuildConfig
 import io.github.jan.supabase.createSupabaseClient
 import io.github.jan.supabase.postgrest.Postgrest
 import io.github.jan.supabase.postgrest.from
@@ -17,7 +15,7 @@ class MySupabaseClient {
     lateinit var client: SupabaseClient
     lateinit var storage: Storage
 
-    private val supabaseUrl = BuildConfig.SUPABASE_URL
+    private val supabaseUrl = BuildConfig.SUPABASE_KEY
     private val supabaseKey = BuildConfig.SUPABASE_KEY
 
     constructor() {
@@ -42,10 +40,11 @@ class MySupabaseClient {
         client.from("markerdatabase").insert(marker)
     }
 
-    suspend fun updateMarker(id: String, title: String, description: String) {
+    suspend fun updateMarker(id: String, title: String, description: String, newImageUrl: String?) {
         client.from("markerdatabase").update({
             set("title", title)
             set("description", description)
+            set("image", newImageUrl)
         }) { filter { eq("id", id) } }
     }
 
@@ -56,17 +55,20 @@ class MySupabaseClient {
     suspend fun uploadImage(imageFile: ByteArray): String {
         val fechaHoraActual = LocalDateTime.now()
         val formato = DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss")
-        val imageName = storage.from("images").upload(path = "image_${fechaHoraActual.format(formato)}.png", data = imageFile)
+        val imageName = storage.from("images")
+            .upload(path = "image_${fechaHoraActual.format(formato)}.png", data = imageFile)
         return buildImageUrl(imageFileName = imageName.path)
     }
 
-    suspend fun deleteImage(imageName: String){
-        val imgName = imageName.removePrefix("https://aobflzinjcljzqpxpcxs.supabase.co/storage/v1/object/public/images/")
+    suspend fun deleteImage(imageName: String) {
+        val imgName =
+            imageName.removePrefix("https://aobflzinjcljzqpxpcxs.supabase.co/storage/v1/object/public/images/")
         client.storage.from("images").delete(imgName)
     }
 
 
-    fun buildImageUrl(imageFileName: String) = "${this.supabaseUrl}/storage/v1/object/public/images/${imageFileName}"
+    fun buildImageUrl(imageFileName: String) =
+        "${this.supabaseUrl}/storage/v1/object/public/images/${imageFileName}"
 
 
 }

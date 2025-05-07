@@ -3,6 +3,7 @@ package com.example.mapsapp.ui.screens
 import android.R.attr.bitmap
 import android.graphics.Bitmap
 import androidx.compose.foundation.Image
+import androidx.compose.runtime.getValue
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -54,22 +55,24 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import coil.compose.AsyncImage
 import com.example.mapsapp.MyApp
 import com.example.mapsapp.viewmodels.MyViewModel
 import com.google.android.gms.maps.model.Marker
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun MarkerListScreen(
     onBack: () -> Unit,
     onMarkerClick: (String) -> Unit
 ) {
-    val myViewModel = viewModel<MyViewModel>()
-    val markers = remember { mutableStateListOf<Marker>() }
+    val viewModel = viewModel<MyViewModel>()
+    val markers by viewModel.markers.collectAsState()
     val scope = rememberCoroutineScope()
 
     Column(Modifier.fillMaxSize()) {
+        @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
         TopAppBar(
             title = { Text("Lista de Marcadores") },
             navigationIcon = {
@@ -80,13 +83,12 @@ fun MarkerListScreen(
         )
 
         LazyColumn(modifier = Modifier.fillMaxSize()) {
-            items(markers, key = { it.id }) { marker ->
+            items(markers, key = { it.id ?: "" }) { marker ->
                 val dismissState = rememberDismissState(
                     confirmStateChange = {
                         if (it == DismissValue.DismissedToStart) {
                             scope.launch {
-                                MyApp.database.deleteMarker(marker.id.toString())
-                                markers.remove(marker)
+                                viewModel.deleteMarker(marker.id ?: "", marker.imageUrl)
                             }
                             true
                         } else false
@@ -108,7 +110,7 @@ fun MarkerListScreen(
                     dismissContent = {
                         MarkerItem(
                             marker = marker,
-                            onClick = { marker.id.toString().let { onMarkerClick(it) } }
+                            onClick = { marker.id?.let { onMarkerClick(it) } }
                         )
                     }
                 )
@@ -121,9 +123,7 @@ fun MarkerListScreen(
 fun MarkerItem(
     marker: Marker,
     onClick: () -> Unit
-
 ) {
-    val bitmap = remember { mutableStateOf<Bitmap?>(null) }
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -132,12 +132,10 @@ fun MarkerItem(
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            Text(
-                text = marker.title!!,
-            )
-            bitmap.value?.let {
-                Image(
-                    bitmap = it.asImageBitmap(),
+            Text(text = marker.title!!)
+            marker.image?.let { url ->
+                AsyncImage(
+                    model = url,
                     contentDescription = null,
                     modifier = Modifier
                         .size(300.dp)

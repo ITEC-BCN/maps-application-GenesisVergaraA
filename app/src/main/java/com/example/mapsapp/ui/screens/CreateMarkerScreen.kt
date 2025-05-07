@@ -42,12 +42,10 @@ import java.io.File
 
 @Composable
 fun CreateMarkerScreen(
-    coordenadas: LatLng,
     onBack: () -> Unit,
     onMarkerCreated: () -> Unit
 ) {
-    val myViewModel = viewModel<MyViewModel>()
-
+    val viewModel = viewModel<MyViewModel>()
     val context = LocalContext.current
 
     val title = remember { mutableStateOf("") }
@@ -119,15 +117,13 @@ fun CreateMarkerScreen(
 
             Button(
                 onClick = {
-                        myViewModel.addMarker(
-                                title = title.value,
-                                description = description.value,
-                                imageUri = imageUri.toString()
-
-                        )
-                        onMarkerCreated()
-                    }
-                ,
+                    viewModel.addMarker(
+                        title = title.value,
+                        description = description.value,
+                        image = bitmap.value
+                    )
+                    onMarkerCreated()
+                },
                 enabled = title.value.isNotEmpty(),
                 modifier = Modifier.weight(1f)
             ) {
