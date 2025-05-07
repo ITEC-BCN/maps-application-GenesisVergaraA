@@ -11,14 +11,17 @@ import com.google.android.gms.maps.model.LatLng
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.ByteArrayOutputStream
 
 class MyViewModel : ViewModel() {
     val database = MyApp.database
-
-    private val _markers = mutableStateOf<List<Marker>>(emptyList())
     private val _markerMark = MutableLiveData<String>()
     val markerMark = _markerMark
+
+    private val _isLoading = MutableLiveData<Boolean>(true)
+    val isLoading = _isLoading
+
     private val _markersList = MutableLiveData<List<Marker>>()
     val markersList = _markersList
 
@@ -35,38 +38,37 @@ class MyViewModel : ViewModel() {
 
     fun loadMarkers() {
         CoroutineScope(Dispatchers.IO).launch {
-            _markers.clear()
-            _markers.addAll(MyApp.database.getAllMarkers())
+            val databaseMarker = database.getAllMarkers()
+            withContext(Dispatchers.Main) {
+                _markersList.value = databaseMarker
+                _isLoading.value = false
+            }
         }
     }
 
-    fun setCurrentPosition(latLng: LatLng) {
-        _currentPosition.value = latLng
-    }
-
-    fun selectMarker(marker: Marker) {
-        _selectedMarker.value = marker
-    }
-
-    fun addMarker(title: String, description: String, image: Bitmap?) {
+    fun addMarker(
+        title: String,
+        description: String,
+        lat: Double,
+        longitude: Double,
+        image: Bitmap?
+    ) {
         CoroutineScope(Dispatchers.IO).launch {
             val imageUrl = image?.let { bitmap ->
                 val stream = ByteArrayOutputStream()
                 bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream)
                 database.uploadImage(stream.toByteArray())
             }
+            val marker = Marker(
+                title = title,
+                description = description,
+                latitude = lat,
+                longitude = longitude,
+                image = imageUrl
+            )
+            database.insertMarker(marker)
+            loadMarkers()
 
-            currentPosition?.let { latLng ->
-                val marker = Marker(
-                    title = title,
-                    description = description,
-                    latitude = latLng.latitude,
-                    longitude = latLng.longitude,
-                    image = imageUrl
-                )
-                database.insertMarker(marker)
-                loadMarkers()
-            }
         }
     }
 

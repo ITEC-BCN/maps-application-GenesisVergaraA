@@ -8,14 +8,19 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color.Companion.White
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.mapsapp.MyApp
 import com.example.mapsapp.data.Marker
+import com.example.mapsapp.viewmodels.MyViewModel
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.GoogleMap
@@ -30,7 +35,10 @@ fun MapScreen(
     onShowList: () -> Unit,
     onMarkerClick: (String) -> Unit
 ) {
-    val markers = remember { mutableStateListOf<Marker>() }
+
+    val viewModel = viewModel<MyViewModel>()
+
+    val markers by viewModel.markersList.observeAsState(emptyList<Marker>())
 
     Column(Modifier.fillMaxSize()) {
         val itb = LatLng(41.4534225, 2.1837151)

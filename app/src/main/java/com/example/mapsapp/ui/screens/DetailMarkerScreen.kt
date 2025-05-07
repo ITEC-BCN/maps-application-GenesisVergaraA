@@ -33,8 +33,10 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.mapsapp.MyApp
 import com.example.mapsapp.data.Marker
+import com.example.mapsapp.viewmodels.MyViewModel
 import kotlinx.coroutines.launch
 
 
@@ -45,6 +47,7 @@ fun DetailMarkerScreen(
     onBack: () -> Unit,
     onMarkerUpdated: () -> Unit
 ) {
+    val viewModel = viewModel<MyViewModel>()
 
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -106,16 +109,15 @@ fun DetailMarkerScreen(
 
         Button(
             onClick = {
-                scope.launch {
-                    MyApp.database.updateMarker(
+                    viewModel.updateMarker(
                         id = markerId,
                         title = title.value,
                         description = description.value,
-                        newImageUrl = newImageUrl
+                        image = bitmap.value
                     )
                     onMarkerUpdated()
                 }
-            },
+            ,
             modifier = Modifier.fillMaxWidth()
         ) {
             Text("Guardar Cambios")

@@ -1,5 +1,6 @@
 package com.example.mapsapp.data
 
+import android.util.Log
 import io.github.jan.supabase.SupabaseClient
 import com.example.mapsapp.BuildConfig
 import io.github.jan.supabase.createSupabaseClient
@@ -15,7 +16,7 @@ class MySupabaseClient {
     lateinit var client: SupabaseClient
     lateinit var storage: Storage
 
-    private val supabaseUrl = BuildConfig.SUPABASE_KEY
+    private val supabaseUrl = BuildConfig.SUPABASE_URL
     private val supabaseKey = BuildConfig.SUPABASE_KEY
 
     constructor() {
@@ -37,6 +38,7 @@ class MySupabaseClient {
     }
 
     suspend fun insertMarker(marker: Marker) {
+        Log.d("insertar", "Llego a insertar")
         client.from("markerdatabase").insert(marker)
     }
 

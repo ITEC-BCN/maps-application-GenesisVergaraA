@@ -42,6 +42,7 @@ import java.io.File
 
 @Composable
 fun CreateMarkerScreen(
+    coordenadas: LatLng,
     onBack: () -> Unit,
     onMarkerCreated: () -> Unit
 ) {
@@ -52,15 +53,6 @@ fun CreateMarkerScreen(
     val description = remember { mutableStateOf("") }
     val imageUri = remember { mutableStateOf<Uri?>(null) }
     val bitmap = remember { mutableStateOf<Bitmap?>(null) }
-
-    val cameraLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.TakePicture()
-    ) { success ->
-        if (success && imageUri.value != null) {
-            val stream = context.contentResolver.openInputStream(imageUri.value!!)
-            bitmap.value = BitmapFactory.decodeStream(stream)
-        }
-    }
 
     Column(
         modifier = Modifier
@@ -80,8 +72,18 @@ fun CreateMarkerScreen(
             label = { Text("Descripción") }
         )
 
+
+        val cameraLauncher = rememberLauncherForActivityResult(
+            ActivityResultContracts.TakePicture()
+        ) { success ->
+            if (success && imageUri.value != null) {
+                val stream = context.contentResolver.openInputStream(imageUri.value!!)
+                bitmap.value = BitmapFactory.decodeStream(stream)
+            }
+        }
         Button(
             onClick = {
+
                 val uri = createImageUri(context)
                 imageUri.value = uri
                 cameraLauncher.launch(uri!!)
@@ -120,7 +122,10 @@ fun CreateMarkerScreen(
                     viewModel.addMarker(
                         title = title.value,
                         description = description.value,
+                        lat = coordenadas.latitude,
+                        longitude = coordenadas.longitude,
                         image = bitmap.value
+
                     )
                     onMarkerCreated()
                 },

@@ -1,16 +1,10 @@
 package com.example.mapsapp.ui.screens
 
-import android.R.attr.bitmap
-import android.graphics.Bitmap
-import androidx.compose.foundation.Image
-import androidx.compose.runtime.getValue
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -18,61 +12,50 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+//noinspection UsingMaterialAndMaterial3Libraries
 import androidx.compose.material.DismissValue
 import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.LinearProgressIndicator
 import androidx.compose.material.SwipeToDismiss
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.rememberDismissState
-import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.SwipeToDismissBox
-import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
-import com.example.mapsapp.MyApp
+import com.example.mapsapp.data.Marker
 import com.example.mapsapp.viewmodels.MyViewModel
-import com.google.android.gms.maps.model.Marker
-import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterialApi::class)
+@OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun MarkerListScreen(
     onBack: () -> Unit,
     onMarkerClick: (String) -> Unit
 ) {
     val viewModel = viewModel<MyViewModel>()
-    val markers by viewModel.markers.collectAsState()
-    val scope = rememberCoroutineScope()
+    val showLoading by viewModel.isLoading.observeAsState(true)
+    val markers by viewModel.markersList.observeAsState(emptyList<Marker>())
 
+    if (showLoading) {
+        showLoading()
+    }
     Column(Modifier.fillMaxSize()) {
-        @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
         TopAppBar(
             title = { Text("Lista de Marcadores") },
             navigationIcon = {
@@ -82,38 +65,46 @@ fun MarkerListScreen(
             }
         )
 
-        LazyColumn(modifier = Modifier.fillMaxSize()) {
-            items(markers, key = { it.id ?: "" }) { marker ->
-                val dismissState = rememberDismissState(
-                    confirmStateChange = {
-                        if (it == DismissValue.DismissedToStart) {
-                            scope.launch {
-                                viewModel.deleteMarker(marker.id ?: "", marker.imageUrl)
-                            }
-                            true
-                        } else false
-                    }
-                )
-
-                SwipeToDismiss(
-                    state = dismissState,
-                    background = {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .background(Color.Red),
-                            contentAlignment = Alignment.CenterEnd
-                        ) {
-                            Icon(Icons.Default.Delete, contentDescription = "Eliminar")
+        if (markers == null) {
+            Column(
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text("Aún no tienes marcadores")
+            }
+        } else {
+            LazyColumn(modifier = Modifier.fillMaxSize()) {
+                items(items = markers!!) { marker ->
+                    val dismissState = rememberDismissState(
+                        confirmStateChange = {
+                            if (it == DismissValue.DismissedToStart) {
+                                viewModel.deleteMarker(marker.id.toString(), marker.image!!)
+                                viewModel.loadMarkers()
+                                true
+                            } else false
                         }
-                    },
-                    dismissContent = {
-                        MarkerItem(
-                            marker = marker,
-                            onClick = { marker.id?.let { onMarkerClick(it) } }
-                        )
-                    }
-                )
+                    )
+
+                    SwipeToDismiss(
+                        state = dismissState,
+                        background = {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .background(Color.Red),
+                                contentAlignment = Alignment.CenterEnd
+                            ) {
+                                Icon(Icons.Default.Delete, contentDescription = "Eliminar")
+                            }
+                        },
+                        dismissContent = {
+                            MarkerItem(
+                                marker = marker,
+                                onClick = { marker.id?.let { onMarkerClick(it.toString()) } }
+                            )
+                        }
+                    )
+                }
             }
         }
     }
@@ -121,7 +112,7 @@ fun MarkerListScreen(
 
 @Composable
 fun MarkerItem(
-    marker: Marker,
+    marker: com.example.mapsapp.data.Marker,
     onClick: () -> Unit
 ) {
     Card(
@@ -132,7 +123,7 @@ fun MarkerItem(
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            Text(text = marker.title!!)
+            Text(text = marker.title)
             marker.image?.let { url ->
                 AsyncImage(
                     model = url,
@@ -145,4 +136,11 @@ fun MarkerItem(
             }
         }
     }
+}
+
+
+@Composable
+fun showLoading() {
+    LinearProgressIndicator()
+    Text("Cargando datos")
 }
