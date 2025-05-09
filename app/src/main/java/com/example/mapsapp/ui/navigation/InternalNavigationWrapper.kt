@@ -1,6 +1,7 @@
 package com.example.mapsapp.ui.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -12,7 +13,7 @@ import com.example.mapsapp.ui.screens.MarkerListScreen
 import com.google.android.gms.maps.model.LatLng
 
 @Composable
-fun InternalNavigationWrapper(navController: NavHostController) {
+fun InternalNavigationWrapper(navController: NavHostController, modifier: Modifier) {
     NavHost(navController, Destination.Map) {
         composable<Destination.Map> {
             MapScreen(
@@ -24,8 +25,8 @@ fun InternalNavigationWrapper(navController: NavHostController) {
                 },
                 onMarkerClick = { markerId ->
                     navController.navigate(Destination.DetailMarker(markerId))
-                }
-            )
+                },
+            modifier)
         }
 
         composable<Destination.CreateMarker> { backStackEntry ->
@@ -35,7 +36,8 @@ fun InternalNavigationWrapper(navController: NavHostController) {
             CreateMarkerScreen(
                 coordenadas = coordenadas,
                 onBack = { navController.popBackStack() },
-                onMarkerCreated = { navController.popBackStack() }
+                onMarkerCreated = { navController.popBackStack() },
+                modifier
             )
         }
 
@@ -44,7 +46,8 @@ fun InternalNavigationWrapper(navController: NavHostController) {
                 onBack = { navController.popBackStack() },
                 onMarkerClick = { markerId ->
                     navController.navigate(Destination.DetailMarker(markerId))
-                }
+                },
+                modifier
             )
         }
 
@@ -53,8 +56,8 @@ fun InternalNavigationWrapper(navController: NavHostController) {
             DetailMarkerScreen(
                 markerId = destination.id,
                 onBack = { navController.popBackStack() },
-                onMarkerUpdated = { navController.popBackStack() }
-            )
+                onMarkerUpdated = { navController.popBackStack() },
+                modifier)
         }
     }
 }

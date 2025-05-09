@@ -33,14 +33,15 @@ import kotlinx.coroutines.launch
 fun MapScreen(
     onCreateMarker: (LatLng) -> Unit,
     onShowList: () -> Unit,
-    onMarkerClick: (String) -> Unit
+    onMarkerClick: (String) -> Unit,
+    modifier: Modifier
 ) {
 
     val viewModel = viewModel<MyViewModel>()
 
     val markers by viewModel.markersList.observeAsState(emptyList<Marker>())
 
-    Column(Modifier.fillMaxSize()) {
+    Column(modifier.fillMaxSize()) {
         val itb = LatLng(41.4534225, 2.1837151)
         val cameraPositionState = rememberCameraPositionState {
             position = CameraPosition.fromLatLngZoom(itb, 17f)

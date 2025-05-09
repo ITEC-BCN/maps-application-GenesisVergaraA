@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -44,7 +45,8 @@ import java.io.File
 fun CreateMarkerScreen(
     coordenadas: LatLng,
     onBack: () -> Unit,
-    onMarkerCreated: () -> Unit
+    onMarkerCreated: () -> Unit,
+    modifier: Modifier
 ) {
     val viewModel = viewModel<MyViewModel>()
     val context = LocalContext.current
@@ -54,11 +56,9 @@ fun CreateMarkerScreen(
     val imageUri = remember { mutableStateOf<Uri?>(null) }
     val bitmap = remember { mutableStateOf<Bitmap?>(null) }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+    Column(modifier.fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
     ) {
         TextField(
             value = title.value,
@@ -81,9 +81,9 @@ fun CreateMarkerScreen(
                 bitmap.value = BitmapFactory.decodeStream(stream)
             }
         }
+        Spacer(modifier = Modifier.fillMaxHeight(0.2f))
         Button(
             onClick = {
-
                 val uri = createImageUri(context)
                 imageUri.value = uri
                 cameraLauncher.launch(uri!!)
@@ -103,9 +103,7 @@ fun CreateMarkerScreen(
                 contentScale = ContentScale.Crop
             )
         }
-
-        Spacer(modifier = Modifier.weight(1f))
-
+        Spacer(modifier = Modifier.fillMaxHeight(0.5f))
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(16.dp)
@@ -122,7 +120,7 @@ fun CreateMarkerScreen(
                     viewModel.addMarker(
                         title = title.value,
                         description = description.value,
-                        lat = coordenadas.latitude,
+                        lat = coordenadas.latitude ,
                         longitude = coordenadas.longitude,
                         image = bitmap.value
 

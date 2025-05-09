@@ -3,6 +3,7 @@ package com.example.mapsapp.viewmodels
 import android.graphics.Bitmap
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.mapsapp.MyApp
@@ -16,24 +17,33 @@ import java.io.ByteArrayOutputStream
 
 class MyViewModel : ViewModel() {
     val database = MyApp.database
-    private val _markerMark = MutableLiveData<String>()
-    val markerMark = _markerMark
 
     private val _isLoading = MutableLiveData<Boolean>(true)
     val isLoading = _isLoading
 
-    private val _markersList = MutableLiveData<List<Marker>>()
+    private val _markersList = MutableLiveData<List<Marker>>(emptyList<Marker>())
     val markersList = _markersList
-
-    private val _selectedMarker = mutableStateOf<Marker?>(null)
-    val selectedMarker = _selectedMarker.value
-
-    private val _currentPosition = mutableStateOf<LatLng?>(null)
-    val currentPosition: LatLng? = _currentPosition.value
-
+    private val _selectedMarker = MutableLiveData<Marker?>(null)
+    val selectedMarker: LiveData<Marker?> = _selectedMarker
 
     init {
         loadMarkers()
+    }
+
+
+    fun getMarker(id: String) {
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                val marker = database.getMarker(id)
+                withContext(Dispatchers.Main) {
+                    _selectedMarker.value = marker
+                }
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    _selectedMarker.value = null
+                }
+            }
+        }
     }
 
     fun loadMarkers() {
@@ -74,7 +84,7 @@ class MyViewModel : ViewModel() {
 
     fun updateMarker(id: String, title: String, description: String, image: Bitmap?) {
         CoroutineScope(Dispatchers.IO).launch {
-            val currentImageUrl = selectedMarker?.image
+            val currentImageUrl = selectedMarker.value!!.image
             val newImageUrl = image?.let { bitmap ->
                 val stream = ByteArrayOutputStream()
                 bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream)

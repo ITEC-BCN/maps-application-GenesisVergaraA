@@ -1,10 +1,15 @@
 package com.example.mapsapp.ui.screens
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -37,6 +42,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.example.mapsapp.data.Marker
@@ -46,52 +52,46 @@ import com.example.mapsapp.viewmodels.MyViewModel
 @Composable
 fun MarkerListScreen(
     onBack: () -> Unit,
-    onMarkerClick: (String) -> Unit
+    onMarkerClick: (String) -> Unit,
+    modifier: Modifier
 ) {
     val viewModel = viewModel<MyViewModel>()
     val showLoading by viewModel.isLoading.observeAsState(true)
     val markers by viewModel.markersList.observeAsState(emptyList<Marker>())
-
-    if (showLoading) {
-        showLoading()
-    }
-    Column(Modifier.fillMaxSize()) {
-        TopAppBar(
-            title = { Text("Lista de Marcadores") },
-            navigationIcon = {
-                IconButton(onClick = onBack) {
-                    Icon(Icons.Default.ArrowBack, contentDescription = "Atrás")
-                }
-            }
-        )
-
-        if (markers == null) {
-            Column(
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text("Aún no tienes marcadores")
-            }
+    Column(
+        modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        if (showLoading) {
+            showLoading()
+        } else if (markers.isEmpty()) {
+            Text("Aún no tienes marcadores")
         } else {
-            LazyColumn(modifier = Modifier.fillMaxSize()) {
-                items(items = markers!!) { marker ->
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+                contentPadding = PaddingValues(8.dp)
+            ) {
+                items(items = markers) { marker ->
                     val dismissState = rememberDismissState(
                         confirmStateChange = {
                             if (it == DismissValue.DismissedToStart) {
-                                viewModel.deleteMarker(marker.id.toString(), marker.image!!)
+                                viewModel.deleteMarker(
+                                    marker.id.toString(),
+                                    marker.image.toString()
+                                )
                                 viewModel.loadMarkers()
                                 true
                             } else false
                         }
                     )
-
                     SwipeToDismiss(
                         state = dismissState,
                         background = {
                             Box(
                                 modifier = Modifier
-                                    .fillMaxSize()
-                                    .background(Color.Red),
+                                    .fillMaxSize(),
                                 contentAlignment = Alignment.CenterEnd
                             ) {
                                 Icon(Icons.Default.Delete, contentDescription = "Eliminar")
@@ -112,28 +112,37 @@ fun MarkerListScreen(
 
 @Composable
 fun MarkerItem(
-    marker: com.example.mapsapp.data.Marker,
+    marker: Marker,
     onClick: () -> Unit
 ) {
     Card(
+        border = BorderStroke(2.dp, Color.LightGray),
         modifier = Modifier
-            .fillMaxWidth()
-            .clickable(onClick = onClick)
-            .padding(8.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+            .clickable { onClick() }
+            .aspectRatio(1f)
+            .padding(4.dp)
+
     ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            Text(text = marker.title)
-            marker.image?.let { url ->
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            marker.let { url ->
                 AsyncImage(
                     model = url,
-                    contentDescription = null,
+                    contentDescription = marker.description,
                     modifier = Modifier
-                        .size(300.dp)
+                        .size(100.dp)
                         .clip(RoundedCornerShape(12.dp)),
                     contentScale = ContentScale.Crop
                 )
             }
+            Text(
+                text = marker.title,
+                fontSize = 14.sp,
+                modifier = Modifier.padding(horizontal = 12.dp)
+            )
         }
     }
 }
@@ -142,5 +151,6 @@ fun MarkerItem(
 @Composable
 fun showLoading() {
     LinearProgressIndicator()
+    Spacer(modifier = Modifier.fillMaxHeight(0.5f))
     Text("Cargando datos")
 }

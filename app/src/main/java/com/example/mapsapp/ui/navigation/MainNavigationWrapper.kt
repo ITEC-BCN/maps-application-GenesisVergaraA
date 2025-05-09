@@ -8,6 +8,8 @@ import androidx.navigation.compose.composable
 import com.example.mapsapp.ui.navigation.Destination.Map
 import com.example.mapsapp.ui.navigation.Destination.Permissions
 import com.example.mapsapp.ui.screens.MyDrawerMenu
+import com.example.mapsapp.ui.screens.SignInScreen
+import com.example.mapsapp.ui.screens.SignUpScreen
 
 
 @Composable
@@ -16,11 +18,22 @@ fun MainNavigationWrapper() {
     NavHost(navController, Permissions) {
         composable<Permissions> {
             PermissionsScreen() {
-                navController.navigate(Destination.Drawer)
+                navController.navigate(Destination.SignIn)
             }
         }
         composable<Destination.Drawer> {
             MyDrawerMenu()
+        }
+        composable<Destination.SignIn> {
+            SignInScreen(
+                 { navController.navigate(Destination.SignUp) },
+                 { navController.navigate(Destination.Drawer) }
+            )
+        }
+        composable<Destination.SignUp> {
+            SignUpScreen() {
+                navController.navigate(Destination.SignIn)
+            }
         }
     }
 }

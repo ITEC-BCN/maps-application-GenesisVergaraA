@@ -30,7 +30,7 @@ import com.example.mapsapp.viewmodels.PermissionViewModel
 
 
 @Composable
-fun PermissionsScreen(navigateToDrawer: () -> Unit) {
+fun PermissionsScreen(navigateToAuth: () -> Unit) {
     val activity = LocalActivity.current
     val viewModel = viewModel<PermissionViewModel>()
 
@@ -77,7 +77,7 @@ fun PermissionsScreen(navigateToDrawer: () -> Unit) {
         if (permissions.all {
                 permissionsStatus[it] == PermissionStatus.Granted
             })
-            navigateToDrawer()
+            navigateToAuth()
     }
     if (permissions.any {
             permissionsStatus[it] == PermissionStatus.Denied
