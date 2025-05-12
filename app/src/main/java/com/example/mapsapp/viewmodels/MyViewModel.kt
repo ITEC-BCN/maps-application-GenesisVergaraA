@@ -6,7 +6,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.example.mapsapp.MyApp
+import com.example.mapsapp.SupabaseApplication
 import com.example.mapsapp.data.Marker
 import com.google.android.gms.maps.model.LatLng
 import kotlinx.coroutines.CoroutineScope
@@ -15,8 +15,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.ByteArrayOutputStream
 
-class MyViewModel : ViewModel() {
-    val database = MyApp.database
+class MyViewModel() : ViewModel() {
+    val database = SupabaseApplication.database
 
     private val _isLoading = MutableLiveData<Boolean>(true)
     val isLoading = _isLoading

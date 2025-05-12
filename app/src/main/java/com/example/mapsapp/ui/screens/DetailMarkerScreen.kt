@@ -40,7 +40,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
-import com.example.mapsapp.MyApp
 import com.example.mapsapp.data.Marker
 import com.example.mapsapp.viewmodels.MyViewModel
 import kotlinx.coroutines.launch

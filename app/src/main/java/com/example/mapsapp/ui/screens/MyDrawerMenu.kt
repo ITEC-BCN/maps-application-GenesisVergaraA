@@ -21,13 +21,16 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontVariation.Settings
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
@@ -36,6 +39,9 @@ import androidx.navigation.compose.rememberNavController
 import com.example.mapsapp.ui.navigation.Destination
 import com.example.mapsapp.ui.navigation.DrawerItem
 import com.example.mapsapp.ui.navigation.InternalNavigationWrapper
+import com.example.mapsapp.utils.SharedPreferencesHelper
+import com.example.mapsapp.viewmodels.AuthViewModel
+import com.example.mapsapp.viewmodels.AuthViewModelFactory
 import kotlinx.coroutines.launch
 
 
@@ -47,7 +53,12 @@ fun MyDrawerMenu() {
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
     var selectedItemIndex by remember { mutableStateOf(0) }
+    val context = LocalContext.current
 
+    val authviewModel: AuthViewModel = viewModel(
+        factory = AuthViewModelFactory(SharedPreferencesHelper(context))
+    )
+    val user by authviewModel.user.observeAsState()
     ModalNavigationDrawer(
         gesturesEnabled = false,
         drawerContent = {
@@ -76,7 +87,7 @@ fun MyDrawerMenu() {
         Scaffold(
             topBar = {
                 TopAppBar(
-                    title = { Text("Maps app") },
+                    title = { Text("Maps app                             $user ") },
                     navigationIcon = {
                         IconButton(onClick = { scope.launch { drawerState.open() } }) {
                             Icon(imageVector = Icons.Default.Menu, contentDescription = "Menu")

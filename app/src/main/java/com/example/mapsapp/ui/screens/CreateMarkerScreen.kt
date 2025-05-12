@@ -34,7 +34,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.core.content.FileProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.mapsapp.MyApp
 import com.example.mapsapp.data.Marker
 import com.example.mapsapp.viewmodels.MyViewModel
 import com.google.android.gms.maps.model.LatLng

@@ -17,9 +17,12 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color.Companion.White
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.mapsapp.MyApp
 import com.example.mapsapp.data.Marker
+import com.example.mapsapp.utils.SharedPreferencesHelper
+import com.example.mapsapp.viewmodels.AuthViewModel
+import com.example.mapsapp.viewmodels.AuthViewModelFactory
 import com.example.mapsapp.viewmodels.MyViewModel
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
@@ -39,12 +42,19 @@ fun MapScreen(
 
     val viewModel = viewModel<MyViewModel>()
 
+    val context = LocalContext.current
+    val authviewModel: AuthViewModel = viewModel(
+        factory = AuthViewModelFactory(SharedPreferencesHelper(context))
+    )
     val markers by viewModel.markersList.observeAsState(emptyList<Marker>())
 
     Column(modifier.fillMaxSize()) {
         val itb = LatLng(41.4534225, 2.1837151)
         val cameraPositionState = rememberCameraPositionState {
             position = CameraPosition.fromLatLngZoom(itb, 17f)
+        }
+        Button(onClick =  {authviewModel.logout()}) {
+            Text("Cerrar sesión")
         }
 
         GoogleMap(
