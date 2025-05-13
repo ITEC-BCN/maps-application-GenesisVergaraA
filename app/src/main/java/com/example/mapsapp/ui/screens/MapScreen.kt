@@ -35,7 +35,6 @@ import kotlinx.coroutines.launch
 @Composable
 fun MapScreen(
     onCreateMarker: (LatLng) -> Unit,
-    onShowList: () -> Unit,
     onMarkerClick: (String) -> Unit,
     modifier: Modifier
 ) {
@@ -52,9 +51,6 @@ fun MapScreen(
         val itb = LatLng(41.4534225, 2.1837151)
         val cameraPositionState = rememberCameraPositionState {
             position = CameraPosition.fromLatLngZoom(itb, 17f)
-        }
-        Button(onClick =  {authviewModel.logout()}) {
-            Text("Cerrar sesión")
         }
 
         GoogleMap(

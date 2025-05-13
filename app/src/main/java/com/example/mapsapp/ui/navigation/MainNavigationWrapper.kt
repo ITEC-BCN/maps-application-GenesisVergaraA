@@ -22,7 +22,9 @@ fun MainNavigationWrapper() {
             }
         }
         composable<Destination.Drawer> {
-            MyDrawerMenu()
+            MyDrawerMenu(){
+                navController.navigate(Destination.SignIn)
+            }
         }
         composable<Destination.SignIn> {
             SignInScreen(

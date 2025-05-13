@@ -20,12 +20,10 @@ fun InternalNavigationWrapper(navController: NavHostController, modifier: Modifi
                 onCreateMarker = { latLng ->
                     navController.navigate(Destination.CreateMarker(latLng.latitude, latLng.longitude))
                 },
-                onShowList = {
-                    navController.navigate(Destination.MarkerList)
-                },
                 onMarkerClick = { markerId ->
                     navController.navigate(Destination.DetailMarker(markerId))
                 },
+
             modifier)
         }
 
