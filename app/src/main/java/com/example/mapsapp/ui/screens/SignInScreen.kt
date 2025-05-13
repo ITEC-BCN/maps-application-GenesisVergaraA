@@ -85,8 +85,7 @@ fun SignInScreen(
                 onValueChange = { viewModel.editEmail(it) },
                 label = { Text("Email") },
                 modifier = Modifier
-                    .fillMaxWidth(0.8f)
-                    .padding(16.dp),
+                    .fillMaxWidth(0.8f),
                 colors = TextFieldDefaults.colors(
                     unfocusedPlaceholderColor = Color(0XFF000113),
                     focusedPlaceholderColor = Color(0XFF000113),
@@ -96,8 +95,7 @@ fun SignInScreen(
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email)
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
-
+            Spacer(modifier = Modifier.fillMaxHeight(0.08f))
             TextField(
                 value = password,
                 onValueChange = { viewModel.editPassword(it) },
@@ -112,24 +110,24 @@ fun SignInScreen(
                     focusedContainerColor = Color(0XFF000113)
                 )
             )
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.fillMaxHeight(0.15f))
 
             Button(
                 onClick = { viewModel.signIn() },
-                modifier = Modifier.fillMaxWidth(0.8f),
+                modifier = Modifier.fillMaxWidth(0.5f).height(50.dp),
                 enabled = email.isNotEmpty() && password.isNotEmpty()
             ) {
                 Text("Iniciar sesión")
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.fillMaxHeight(0.2f))
 
             Row() {
                 Text("No tienes cuenta?  ", color = Color(0xFFFFFFFF))
                 Text(
                     "Regístrate",
                     modifier = Modifier.clickable(onClick = navigateToSignUp),
-                    color = Color(0xFF79ADF2 )
+                    color = Color(0xFF79ADF2)
                 )
             }
         }
