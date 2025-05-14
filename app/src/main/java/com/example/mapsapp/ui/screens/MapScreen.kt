@@ -45,8 +45,8 @@ fun MapScreen(
     val authviewModel: AuthViewModel = viewModel(
         factory = AuthViewModelFactory(SharedPreferencesHelper(context))
     )
+    val authState by authviewModel.authState.observeAsState()
     val markers by viewModel.markersList.observeAsState(emptyList<Marker>())
-
     Column(modifier.fillMaxSize()) {
         val itb = LatLng(41.4534225, 2.1837151)
         val cameraPositionState = rememberCameraPositionState {

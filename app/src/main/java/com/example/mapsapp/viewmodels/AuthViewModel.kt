@@ -22,6 +22,8 @@ class AuthViewModel(private val sharedPreferences: SharedPreferencesHelper): Vie
     private val _user = MutableLiveData<String?>()
     val user = _user
 
+
+
     fun editEmail(value: String){
         _email.value = value
     }
@@ -86,8 +88,10 @@ class AuthViewModel(private val sharedPreferences: SharedPreferencesHelper): Vie
     private fun refreshToken() {
         viewModelScope.launch {
             try {
-                authManager.refreshSession()
-                _authState.value = AuthState.Authenticated
+                _authState.value = authManager.refreshSession()
+                val session = authManager.retrieveCurrentSession()
+                _user.value = createCoolUsername(session?.user?.email)
+                _user.value = session?.user?.aud
             } catch (e: Exception) {
                 sharedPreferences.clear()
                 _authState.value = AuthState.Unauthenticated
@@ -100,6 +104,13 @@ class AuthViewModel(private val sharedPreferences: SharedPreferencesHelper): Vie
             sharedPreferences.clear()
             _authState.value = AuthState.Unauthenticated
         }
+    }
+
+    fun createCoolUsername(email: String?): String {
+        return email?.takeIf { it.isNotBlank() }?.let {
+            val regex = Regex("^([a-zA-Z]+)")
+            regex.find(it)?.groupValues?.getOrNull(0)?.take(5) ?: it.take(5)
+        } ?: "Guest"
     }
 
 }

@@ -83,7 +83,7 @@ dependencies {
     implementation(libs.maps.compose)
     implementation(libs.play.services.maps)
     implementation(libs.play.services.location)
-    implementation("io.github.jan-tennert.supabase:auth-kt:3.1.4")
+    implementation(libs.auth.kt)
     implementation("androidx.compose.material:material:1.8.0-rc03")
     implementation(platform("io.github.jan-tennert.supabase:bom:3.1.4"))
     implementation("io.github.jan-tennert.supabase:storage-kt:$3.1.4")

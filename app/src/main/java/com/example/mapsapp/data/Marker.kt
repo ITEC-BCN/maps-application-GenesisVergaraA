@@ -10,5 +10,5 @@ data class Marker(
     val latitude: Double,
     val longitude: Double,
     val image: String? = null,
-    val user_id: Int = 0
+    val user_id: String = ""
 )

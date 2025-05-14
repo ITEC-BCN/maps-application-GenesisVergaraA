@@ -7,6 +7,7 @@ import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -15,29 +16,31 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.core.content.FileProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.mapsapp.data.Marker
+import com.example.mapsapp.utils.SharedPreferencesHelper
+import com.example.mapsapp.viewmodels.AuthViewModel
+import com.example.mapsapp.viewmodels.AuthViewModelFactory
 import com.example.mapsapp.viewmodels.MyViewModel
 import com.google.android.gms.maps.model.LatLng
-import kotlinx.coroutines.launch
 import java.io.File
 
 @Composable
@@ -49,26 +52,43 @@ fun CreateMarkerScreen(
 ) {
     val viewModel = viewModel<MyViewModel>()
     val context = LocalContext.current
-
+    val authviewModel: AuthViewModel = viewModel(
+        factory = AuthViewModelFactory(SharedPreferencesHelper(context))
+    )
     val title = remember { mutableStateOf("") }
     val description = remember { mutableStateOf("") }
     val imageUri = remember { mutableStateOf<Uri?>(null) }
     val bitmap = remember { mutableStateOf<Bitmap?>(null) }
+    val authState by authviewModel.authState.observeAsState()
 
-    Column(modifier.fillMaxSize(),
+    Column(modifier.fillMaxSize()
+        .background(Color(0XFF000113)),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
         TextField(
             value = title.value,
             onValueChange = { title.value = it },
-            label = { Text("Título") }
+            label = { Text("Título") },
+            colors = TextFieldDefaults.colors(
+                unfocusedPlaceholderColor = Color(0XFF000113),
+                focusedPlaceholderColor = Color(0XFF000113),
+                unfocusedContainerColor = Color(0XFF000113),
+                focusedContainerColor = Color(0XFF000113)
+            )
         )
+        Spacer(modifier = Modifier.fillMaxHeight(0.1f))
 
         TextField(
             value = description.value,
             onValueChange = { description.value = it },
-            label = { Text("Descripción") }
+            label = { Text("Descripción") },
+            colors = TextFieldDefaults.colors(
+                unfocusedPlaceholderColor = Color(0XFF000113),
+                focusedPlaceholderColor = Color(0XFF000113),
+                unfocusedContainerColor = Color(0XFF000113),
+                focusedContainerColor = Color(0XFF000113)
+            )
         )
 
 
@@ -80,7 +100,21 @@ fun CreateMarkerScreen(
                 bitmap.value = BitmapFactory.decodeStream(stream)
             }
         }
-        Spacer(modifier = Modifier.fillMaxHeight(0.2f))
+        Spacer(modifier = Modifier.fillMaxHeight(0.1f))
+
+
+        bitmap.value?.let {
+            Image(
+                bitmap = it.asImageBitmap(),
+                contentDescription = null,
+                modifier = Modifier
+                    .fillMaxWidth(0.6f)
+                    .height(200.dp)
+                    .clip(RoundedCornerShape(8.dp)),
+                contentScale = ContentScale.Crop
+            )
+        }
+        Spacer(modifier = Modifier.fillMaxHeight(0.08f))
         Button(
             onClick = {
                 val uri = createImageUri(context)
@@ -90,21 +124,9 @@ fun CreateMarkerScreen(
         ) {
             Text("Tomar foto")
         }
-
-        bitmap.value?.let {
-            Image(
-                bitmap = it.asImageBitmap(),
-                contentDescription = null,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(200.dp)
-                    .clip(RoundedCornerShape(8.dp)),
-                contentScale = ContentScale.Crop
-            )
-        }
-        Spacer(modifier = Modifier.fillMaxHeight(0.5f))
+        Spacer(modifier = Modifier.fillMaxHeight(0.4f))
         Row(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth(0.7f),
             horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             Button(
@@ -121,7 +143,7 @@ fun CreateMarkerScreen(
                         description = description.value,
                         lat = coordenadas.latitude ,
                         longitude = coordenadas.longitude,
-                        image = bitmap.value
+                        image = bitmap.value,
 
                     )
                     onMarkerCreated()

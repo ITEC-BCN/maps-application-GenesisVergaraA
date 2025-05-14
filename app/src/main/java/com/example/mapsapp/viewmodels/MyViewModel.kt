@@ -1,14 +1,11 @@
 package com.example.mapsapp.viewmodels
 
 import android.graphics.Bitmap
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.mapsapp.SupabaseApplication
 import com.example.mapsapp.data.Marker
-import com.google.android.gms.maps.model.LatLng
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -17,7 +14,7 @@ import java.io.ByteArrayOutputStream
 
 class MyViewModel() : ViewModel() {
     val database = SupabaseApplication.database
-
+    val auth = SupabaseApplication.supabase
     private val _isLoading = MutableLiveData<Boolean>(true)
     val isLoading = _isLoading
 
@@ -61,7 +58,7 @@ class MyViewModel() : ViewModel() {
         description: String,
         lat: Double,
         longitude: Double,
-        image: Bitmap?
+        image: Bitmap?,
     ) {
         CoroutineScope(Dispatchers.IO).launch {
             val imageUrl = image?.let { bitmap ->
@@ -74,7 +71,7 @@ class MyViewModel() : ViewModel() {
                 description = description,
                 latitude = lat,
                 longitude = longitude,
-                image = imageUrl
+                image = imageUrl,
             )
             database.insertMarker(marker)
             loadMarkers()
