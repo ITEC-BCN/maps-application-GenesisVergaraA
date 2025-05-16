@@ -13,8 +13,7 @@ import kotlinx.coroutines.withContext
 import java.io.ByteArrayOutputStream
 
 class MyViewModel() : ViewModel() {
-    val database = SupabaseApplication.database
-    val auth = SupabaseApplication.supabase
+    val supabase = SupabaseApplication.supabase
     private val _isLoading = MutableLiveData<Boolean>(true)
     val isLoading = _isLoading
 
@@ -31,7 +30,7 @@ class MyViewModel() : ViewModel() {
     fun getMarker(id: String) {
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                val marker = database.getMarker(id)
+                val marker = supabase.getMarker(id)
                 withContext(Dispatchers.Main) {
                     _selectedMarker.value = marker
                 }
@@ -45,7 +44,7 @@ class MyViewModel() : ViewModel() {
 
     fun loadMarkers() {
         CoroutineScope(Dispatchers.IO).launch {
-            val databaseMarker = database.getAllMarkers()
+            val databaseMarker = supabase.getAllMarkers()
             withContext(Dispatchers.Main) {
                 _markersList.value = databaseMarker
                 _isLoading.value = false
@@ -64,7 +63,7 @@ class MyViewModel() : ViewModel() {
             val imageUrl = image?.let { bitmap ->
                 val stream = ByteArrayOutputStream()
                 bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream)
-                database.uploadImage(stream.toByteArray())
+                supabase.uploadImage(stream.toByteArray())
             }
             val marker = Marker(
                 title = title,
@@ -73,7 +72,7 @@ class MyViewModel() : ViewModel() {
                 longitude = longitude,
                 image = imageUrl,
             )
-            database.insertMarker(marker)
+            supabase.insertMarker(marker)
             loadMarkers()
 
         }
@@ -85,22 +84,22 @@ class MyViewModel() : ViewModel() {
             val newImageUrl = image?.let { bitmap ->
                 val stream = ByteArrayOutputStream()
                 bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream)
-                database.uploadImage(stream.toByteArray())
+                supabase.uploadImage(stream.toByteArray())
             } ?: currentImageUrl
 
             if (newImageUrl != currentImageUrl && currentImageUrl != null) {
-                database.deleteImage(currentImageUrl)
+               supabase.deleteImage(currentImageUrl)
             }
 
-            database.updateMarker(id, title, description, newImageUrl)
+            supabase.updateMarker(id, title, description, newImageUrl)
             loadMarkers()
         }
     }
 
     fun deleteMarker(id: String, image: String) {
         CoroutineScope(Dispatchers.IO).launch {
-            database.deleteImage(image)
-            database.deleteMarker(id)
+            supabase.deleteImage(image)
+            supabase.deleteMarker(id)
             loadMarkers()
         }
     }

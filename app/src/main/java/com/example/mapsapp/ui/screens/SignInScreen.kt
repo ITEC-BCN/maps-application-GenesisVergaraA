@@ -69,7 +69,7 @@ fun SignInScreen(
             horizontalAlignment = Alignment.CenterHorizontally
 
         ) {
-            Text("Login", color = Color(0xFFFFFFFF), fontSize = 35.sp, fontWeight = FontWeight.Bold)
+            Text("Inicia sesión", color = Color(0xFFFFFFFF), fontSize = 30.sp)
             if (showError) {
                 val errorMessage = (authState as AuthState.Error).message
                 if (errorMessage.contains("invalid_credentials")) {
@@ -110,11 +110,11 @@ fun SignInScreen(
                     focusedContainerColor = Color(0XFF000113)
                 )
             )
-            Spacer(modifier = Modifier.fillMaxHeight(0.15f))
+            Spacer(modifier = Modifier.fillMaxHeight(0.08f))
 
             Button(
                 onClick = { viewModel.signIn() },
-                modifier = Modifier.fillMaxWidth(0.5f).height(50.dp),
+                modifier = Modifier.fillMaxWidth(0.8f).height(50.dp),
                 enabled = email.isNotEmpty() && password.isNotEmpty()
             ) {
                 Text("Iniciar sesión")
@@ -122,8 +122,8 @@ fun SignInScreen(
 
             Spacer(modifier = Modifier.fillMaxHeight(0.2f))
 
-            Row() {
-                Text("No tienes cuenta?  ", color = Color(0xFFFFFFFF))
+            Row(modifier = Modifier.fillMaxWidth(0.7f), Arrangement.SpaceEvenly) {
+                Text("¿No tienes cuenta?", color = Color(0xFFFFFFFF))
                 Text(
                     "Regístrate",
                     modifier = Modifier.clickable(onClick = navigateToSignUp),

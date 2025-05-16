@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.Button
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -41,12 +42,10 @@ fun MapScreen(
 
     val viewModel = viewModel<MyViewModel>()
 
-    val context = LocalContext.current
-    val authviewModel: AuthViewModel = viewModel(
-        factory = AuthViewModelFactory(SharedPreferencesHelper(context))
-    )
-    val authState by authviewModel.authState.observeAsState()
+    viewModel.loadMarkers()
+
     val markers by viewModel.markersList.observeAsState(emptyList<Marker>())
+
     Column(modifier.fillMaxSize()) {
         val itb = LatLng(41.4534225, 2.1837151)
         val cameraPositionState = rememberCameraPositionState {
@@ -68,7 +67,7 @@ fun MapScreen(
                     onClick = {
                         marker.id?.toString()?.let { onMarkerClick(it) }
                         true
-                    }
+                    },
                 )
             }
         }

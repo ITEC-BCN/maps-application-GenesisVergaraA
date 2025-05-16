@@ -4,7 +4,6 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.mapsapp.SupabaseApplication
-import com.example.mapsapp.data.SupabaseManager
 import com.example.mapsapp.utils.AuthState
 import com.example.mapsapp.utils.SharedPreferencesHelper
 import kotlinx.coroutines.launch
@@ -91,7 +90,6 @@ class AuthViewModel(private val sharedPreferences: SharedPreferencesHelper): Vie
                 _authState.value = authManager.refreshSession()
                 val session = authManager.retrieveCurrentSession()
                 _user.value = createCoolUsername(session?.user?.email)
-                _user.value = session?.user?.aud
             } catch (e: Exception) {
                 sharedPreferences.clear()
                 _authState.value = AuthState.Unauthenticated

@@ -1,5 +1,6 @@
 package com.example.mapsapp.ui.screens
 
+
 import android.annotation.SuppressLint
 import android.util.Log
 import android.view.Surface
@@ -59,8 +60,6 @@ import kotlinx.coroutines.launch
 import okhttp3.Route
 
 
-@OptIn(ExperimentalMaterial3Api::class)
-@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun MyDrawerMenu(
     onLogout: () -> Unit
@@ -77,7 +76,7 @@ fun MyDrawerMenu(
     ModalNavigationDrawer(
         gesturesEnabled = false,
         drawerContent = {
-            ModalDrawerSheet {
+            ModalDrawerSheet(modifier = Modifier.fillMaxWidth(0.7f)) {
                 DrawerItem.entries.forEachIndexed { index, drawerItem ->
                     NavigationDrawerItem(
                         icon = {
@@ -101,6 +100,7 @@ fun MyDrawerMenu(
     ) {
         Scaffold(
             topBar = {
+                @OptIn(ExperimentalMaterial3Api::class)
                 TopAppBar(
                     navigationIcon = {
                         IconButton(onClick = { scope.launch { drawerState.open() } }) {

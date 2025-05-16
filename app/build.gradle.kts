@@ -63,6 +63,9 @@ android {
     buildFeatures {
         compose = true
     }
+
+
+
 }
 
 dependencies {
@@ -84,11 +87,11 @@ dependencies {
     implementation(libs.play.services.maps)
     implementation(libs.play.services.location)
     implementation(libs.auth.kt)
-    implementation("androidx.compose.material:material:1.8.0-rc03")
+    implementation("androidx.compose.material:material:1.8.1")
     implementation(platform("io.github.jan-tennert.supabase:bom:3.1.4"))
     implementation("io.github.jan-tennert.supabase:storage-kt:$3.1.4")
     implementation("io.coil-kt:coil-compose:2.7.0")
-    implementation("io.github.jan-tennert.supabase:postgrest-kt")
+    implementation(libs.supabase.postgrest.kt)
     implementation (libs.storage.kt)
     implementation("io.ktor:ktor-client-android:3.1.2")
     testImplementation(libs.junit)

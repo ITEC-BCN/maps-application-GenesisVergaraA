@@ -1,15 +1,18 @@
 package com.example.mapsapp.ui.screens
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -24,6 +27,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.rememberDismissState
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -53,7 +57,9 @@ fun MarkerListScreen(
     val showLoading by viewModel.isLoading.observeAsState(true)
     val markers by viewModel.markersList.observeAsState(emptyList<Marker>())
     Column(
-        modifier.fillMaxSize(),
+        modifier
+            .fillMaxSize()
+            .background(Color(0XFF000113)),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -64,8 +70,8 @@ fun MarkerListScreen(
         } else {
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-                contentPadding = PaddingValues(8.dp)
+                verticalArrangement = Arrangement.spacedBy(10.dp),
+                contentPadding = PaddingValues(10.dp)
             ) {
                 items(items = markers) { marker ->
                     val dismissState = rememberDismissState(
@@ -75,7 +81,6 @@ fun MarkerListScreen(
                                     marker.id.toString(),
                                     marker.image.toString()
                                 )
-                                viewModel.loadMarkers()
                                 true
                             } else false
                         }
@@ -113,30 +118,34 @@ fun MarkerItem(
         border = BorderStroke(2.dp, Color.LightGray),
         modifier = Modifier
             .clickable { onClick() }
-            .aspectRatio(1f)
+            .aspectRatio(3f)
             .padding(4.dp)
+            .background(Color(0XFF000113)),
+        colors = CardDefaults.cardColors(Color(0XFF000113))
 
     ) {
-        Column(
+        Row(
             modifier = Modifier.fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+            Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            marker.let { url ->
-                AsyncImage(
-                    model = url,
-                    contentDescription = marker.description,
-                    modifier = Modifier
-                        .size(100.dp)
-                        .clip(RoundedCornerShape(12.dp)),
-                    contentScale = ContentScale.Crop
-                )
-            }
-            Text(
-                text = marker.title,
-                fontSize = 14.sp,
-                modifier = Modifier.padding(horizontal = 12.dp)
+            AsyncImage(
+                model = marker.image,
+                contentDescription = marker.description,
+                modifier = Modifier
+                    .fillMaxWidth(0.35f)
+                    .clip(RoundedCornerShape(12.dp)),
+                contentScale = ContentScale.FillBounds
             )
+            Column(Modifier.fillMaxSize(),
+                Arrangement.Center,
+                Alignment.CenterHorizontally) {
+                Text(
+                    text = marker.title,
+                    modifier = Modifier.padding(bottom = 20.dp)
+                )
+                Text(text = marker.description.take(25) + "...", fontSize = 14.sp)
+            }
         }
     }
 }
