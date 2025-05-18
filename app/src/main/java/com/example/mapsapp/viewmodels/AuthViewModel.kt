@@ -7,9 +7,10 @@ import com.example.mapsapp.SupabaseApplication
 import com.example.mapsapp.utils.AuthState
 import com.example.mapsapp.utils.SharedPreferencesHelper
 import kotlinx.coroutines.launch
+import kotlin.math.abs
 
 class AuthViewModel(private val sharedPreferences: SharedPreferencesHelper): ViewModel() {
-    private val authManager = SupabaseApplication.supabase
+    private val supabaseAuth = SupabaseApplication.supabase
     private val _email = MutableLiveData<String>()
     val email = _email
     private val _password = MutableLiveData<String>()
@@ -22,31 +23,18 @@ class AuthViewModel(private val sharedPreferences: SharedPreferencesHelper): Vie
     val user = _user
 
 
-
-    fun editEmail(value: String){
-        _email.value = value
-    }
-
-    fun editPassword(value: String){
-        _password.value = value
-    }
-
-    fun errorMessageShowed(){
-        _showError.value = false
-    }
-
     init {
         checkExistingSession()
     }
 
-
+    //Registrarse
     fun signUp() {
         viewModelScope.launch {
-            _authState.value = authManager.signUpWithEmail(_email.value!!, _password.value!!)
+            _authState.value = supabaseAuth.signUpWithEmail(_email.value!!, _password.value!!)
             if (_authState.value is AuthState.Error) {
                 _showError.value = true
             } else {
-                val session = authManager.retrieveCurrentSession()
+                val session = supabaseAuth.retrieveCurrentSession()
                 sharedPreferences.saveAuthData(
                     session!!.accessToken,
                     session.refreshToken
@@ -55,23 +43,24 @@ class AuthViewModel(private val sharedPreferences: SharedPreferencesHelper): Vie
         }
     }
 
-
+    //Iniciar sesión
     fun signIn() {
         viewModelScope.launch {
-            _authState.value = authManager.signInWithEmail(_email.value!!, _password.value!!)
+            _authState.value = supabaseAuth.signInWithEmail(_email.value!!, _password.value!!)
             if (_authState.value is AuthState.Error) {
                 _showError.value = true
             } else {
-                val session = authManager.retrieveCurrentSession()
+                val session = supabaseAuth.retrieveCurrentSession()
                 sharedPreferences.saveAuthData(
                     session!!.accessToken,
                     session.refreshToken
                 )
+                _user.value = createCoolUsername(session.user?.email)
             }
         }
     }
 
-
+    //Comprobar sesión actual
     private fun checkExistingSession() {
         viewModelScope.launch {
             val accessToken = sharedPreferences.getAccessToken()
@@ -84,11 +73,12 @@ class AuthViewModel(private val sharedPreferences: SharedPreferencesHelper): Vie
         }
     }
 
+    //
     private fun refreshToken() {
         viewModelScope.launch {
             try {
-                _authState.value = authManager.refreshSession()
-                val session = authManager.retrieveCurrentSession()
+                _authState.value = supabaseAuth.refreshSession()
+                val session = supabaseAuth.retrieveCurrentSession()
                 _user.value = createCoolUsername(session?.user?.email)
             } catch (e: Exception) {
                 sharedPreferences.clear()
@@ -97,6 +87,7 @@ class AuthViewModel(private val sharedPreferences: SharedPreferencesHelper): Vie
         }
     }
 
+    //Cerrar sessión
     fun logout() {
         viewModelScope.launch {
             sharedPreferences.clear()
@@ -104,11 +95,30 @@ class AuthViewModel(private val sharedPreferences: SharedPreferencesHelper): Vie
         }
     }
 
+    //Crear un nombre de usuario aleatorio (usando el hashcode del email)
     fun createCoolUsername(email: String?): String {
-        return email?.takeIf { it.isNotBlank() }?.let {
-            val regex = Regex("^([a-zA-Z]+)")
-            regex.find(it)?.groupValues?.getOrNull(0)?.take(5) ?: it.take(5)
-        } ?: "Guest"
+        val clean = email?.substringBefore('@')
+            ?.replace(Regex("[^a-zA-Z]"), "")
+            ?.take(6)
+            ?.lowercase()
+            .orEmpty()
+        val stableHash = abs(email?.hashCode() ?: 0) % 1000
+        return if (clean.isEmpty()) "user$stableHash"
+        else clean + stableHash
+    }
+
+    //Mostrar errores
+    fun errorMessageShowed(){
+        _showError.value = false
+    }
+
+    //GETTERS I SETTERS
+    fun editEmail(value: String){
+        _email.value = value
+    }
+
+    fun editPassword(value: String){
+        _password.value = value
     }
 
 }

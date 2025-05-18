@@ -41,7 +41,6 @@ fun InternalNavigationWrapper(navController: NavHostController, modifier: Modifi
 
         composable<Destination.MarkerList> {
             MarkerListScreen(
-                onBack = { navController.popBackStack() },
                 onMarkerClick = { markerId ->
                     navController.navigate(Destination.DetailMarker(markerId))
                 },

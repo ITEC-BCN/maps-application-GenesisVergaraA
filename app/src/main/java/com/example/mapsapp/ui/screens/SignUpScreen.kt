@@ -9,17 +9,13 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.material3.TextField
-
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
@@ -36,6 +32,7 @@ import com.example.mapsapp.utils.SharedPreferencesHelper
 import com.example.mapsapp.viewmodels.AuthViewModel
 import com.example.mapsapp.viewmodels.AuthViewModelFactory
 import com.example.mapsapp.utils.AuthState
+import com.example.mapsapp.utils.textFieldColors
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -90,12 +87,7 @@ fun SignUpScreen(
             label = { Text("Email") },
             modifier = Modifier.fillMaxWidth(0.8f),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-            colors = TextFieldDefaults.colors(
-                unfocusedPlaceholderColor = Color(0XFF000113),
-                focusedPlaceholderColor = Color(0XFF000113),
-                unfocusedContainerColor = Color(0XFF000113),
-                focusedContainerColor = Color(0XFF000113)
-            )
+            colors = textFieldColors()
         )
 
         Spacer(modifier = Modifier.fillMaxHeight(0.08f))
@@ -107,12 +99,7 @@ fun SignUpScreen(
             modifier = Modifier.fillMaxWidth(0.8f),
             visualTransformation = PasswordVisualTransformation(),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-            colors = TextFieldDefaults.colors(
-                unfocusedPlaceholderColor = Color(0XFF000113),
-                focusedPlaceholderColor = Color(0XFF000113),
-                unfocusedContainerColor = Color(0XFF000113),
-                focusedContainerColor = Color(0XFF000113)
-            )
+            colors = textFieldColors()
 
         )
 
@@ -120,7 +107,9 @@ fun SignUpScreen(
 
         Button(
             onClick = { viewModel.signUp() },
-            modifier = Modifier.fillMaxWidth(0.8f).height(50.dp),
+            modifier = Modifier
+                .fillMaxWidth(0.8f)
+                .height(50.dp),
             enabled = email.isNotEmpty() && password.length >= 6
         ) {
             Text("Registrarse")

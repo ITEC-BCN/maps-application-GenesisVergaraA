@@ -40,6 +40,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.material3.TextFieldColors
 import androidx.compose.material3.TextFieldDefaults
+import com.example.mapsapp.utils.textFieldColors
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -86,12 +87,7 @@ fun SignInScreen(
                 label = { Text("Email") },
                 modifier = Modifier
                     .fillMaxWidth(0.8f),
-                colors = TextFieldDefaults.colors(
-                    unfocusedPlaceholderColor = Color(0XFF000113),
-                    focusedPlaceholderColor = Color(0XFF000113),
-                    unfocusedContainerColor = Color(0XFF000113),
-                    focusedContainerColor = Color(0XFF000113)
-                ),
+                colors = textFieldColors(),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email)
             )
 
@@ -103,12 +99,7 @@ fun SignInScreen(
                 modifier = Modifier.fillMaxWidth(0.8f),
                 visualTransformation = PasswordVisualTransformation(),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                colors = TextFieldDefaults.colors(
-                    unfocusedPlaceholderColor = Color(0XFF000113),
-                    focusedPlaceholderColor = Color(0XFF000113),
-                    unfocusedContainerColor = Color(0XFF000113),
-                    focusedContainerColor = Color(0XFF000113)
-                )
+                colors = textFieldColors()
             )
             Spacer(modifier = Modifier.fillMaxHeight(0.08f))
 

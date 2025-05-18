@@ -78,29 +78,30 @@ fun PermissionsScreen(navigateToAuth: () -> Unit) {
                 permissionsStatus[it] == PermissionStatus.Granted
             })
             navigateToAuth()
-    }
-    if (permissions.any {
-            permissionsStatus[it] == PermissionStatus.Denied
-        }
-    ) {
-        Button(onClick = {
-            launcher.launch(permissions.toTypedArray())
-        }) {
-            Text("Apply again")
-        }
-    }
-    if (permissions.any {
-            permissionsStatus[it] == PermissionStatus.PermanentlyDenied
-        }
-    ) {
-        Spacer(modifier = Modifier.height(8.dp))
-        Button(onClick = {
-            val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
-                data = Uri.fromParts("package", activity!!.packageName, null)
+
+        if (permissions.any {
+                permissionsStatus[it] == PermissionStatus.Denied
             }
-            activity!!.startActivity(intent)
-        }) {
-            Text("Go to settings")
+        ) {
+            Button(onClick = {
+                launcher.launch(permissions.toTypedArray())
+            }) {
+                Text("Apply again")
+            }
+        }
+        if (permissions.any {
+                permissionsStatus[it] == PermissionStatus.PermanentlyDenied
+            }
+        ) {
+            Spacer(modifier = Modifier.height(8.dp))
+            Button(onClick = {
+                val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                    data = Uri.fromParts("package", activity!!.packageName, null)
+                }
+                activity!!.startActivity(intent)
+            }) {
+                Text("Go to settings")
+            }
         }
     }
 }

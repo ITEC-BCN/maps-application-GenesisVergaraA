@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -44,16 +43,16 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.example.mapsapp.data.Marker
-import com.example.mapsapp.viewmodels.MyViewModel
+import com.example.mapsapp.utils.Loading
+import com.example.mapsapp.viewmodels.MapsViewModel
 
 @OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun MarkerListScreen(
-    onBack: () -> Unit,
     onMarkerClick: (String) -> Unit,
     modifier: Modifier
 ) {
-    val viewModel = viewModel<MyViewModel>()
+    val viewModel = viewModel<MapsViewModel>()
     val showLoading by viewModel.isLoading.observeAsState(true)
     val markers by viewModel.markersList.observeAsState(emptyList<Marker>())
     Column(
@@ -64,7 +63,7 @@ fun MarkerListScreen(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         if (showLoading) {
-            ShowLoading()
+            Loading("Cargando marcadores...")
         } else if (markers.isEmpty()) {
             Text("Aún no tienes marcadores")
         } else {
@@ -148,12 +147,4 @@ fun MarkerItem(
             }
         }
     }
-}
-
-
-@Composable
-fun ShowLoading() {
-    LinearProgressIndicator()
-    Spacer(modifier = Modifier.fillMaxHeight(0.5f))
-    Text("Cargando datos")
 }

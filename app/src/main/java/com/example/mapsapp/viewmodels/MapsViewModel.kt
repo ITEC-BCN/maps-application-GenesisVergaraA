@@ -12,7 +12,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.ByteArrayOutputStream
 
-class MyViewModel() : ViewModel() {
+class MapsViewModel() : ViewModel() {
     val supabase = SupabaseApplication.supabase
     private val _isLoading = MutableLiveData<Boolean>(true)
     val isLoading = _isLoading
@@ -26,7 +26,7 @@ class MyViewModel() : ViewModel() {
         loadMarkers()
     }
 
-
+    //Obtener marcador
     fun getMarker(id: String) {
         CoroutineScope(Dispatchers.IO).launch {
             try {
@@ -42,6 +42,7 @@ class MyViewModel() : ViewModel() {
         }
     }
 
+    //Cargar todos los marcadores
     fun loadMarkers() {
         CoroutineScope(Dispatchers.IO).launch {
             val databaseMarker = supabase.getAllMarkers()
@@ -52,6 +53,7 @@ class MyViewModel() : ViewModel() {
         }
     }
 
+    //Añadir un nuevo marcador
     fun addMarker(
         title: String,
         description: String,
@@ -78,6 +80,7 @@ class MyViewModel() : ViewModel() {
         }
     }
 
+    //Actualizar marcador
     fun updateMarker(id: String, title: String, description: String, image: Bitmap?) {
         CoroutineScope(Dispatchers.IO).launch {
             val currentImageUrl = selectedMarker.value!!.image
@@ -96,6 +99,7 @@ class MyViewModel() : ViewModel() {
         }
     }
 
+    //Eliminar marcador existente
     fun deleteMarker(id: String, image: String) {
         CoroutineScope(Dispatchers.IO).launch {
             supabase.deleteImage(image)
